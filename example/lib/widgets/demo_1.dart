@@ -51,12 +51,8 @@ class Demo1 extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          new Text(
-            'There are no bottons to push :)',
-          ),
-          new Text(
-            'Just turn off your internet.',
-          ),
+          Text('There are no bottons to push :)'),
+          Text('Just turn off your internet.'),
         ],
       ),
     );
