@@ -61,33 +61,21 @@ StreamTransformer<ConnectivityResult, ConnectivityResult> startsWith(
 StreamTransformer<ConnectivityResult, ConnectivityResult> checkIfHostIsAvailble(
   String host,
 ) {
-  bool _seenFirstData = false;
-  Timer _timer;
-
   return StreamTransformer<ConnectivityResult, ConnectivityResult>.fromHandlers(
-    handleData: (ConnectivityResult data, EventSink<ConnectivityResult> sink) {
-      if (_seenFirstData) {
-        _timer?.cancel();
-        _timer = Timer(Duration.zero, ()async {
-          try {
-            final result = await InternetAddress.lookup(host);
-            if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-              sink.add(data);
-            }else{
-              sink.add(ConnectivityResult.none);
-            }
-          } on SocketException catch (_) {
-            sink.add(ConnectivityResult.none);
-          }
-        });
-      } else {
-        sink.add(data);
-        _seenFirstData = true;
+    handleData:
+        (ConnectivityResult data, EventSink<ConnectivityResult> sink) async {
+      try {
+        final result = await InternetAddress.lookup(host);
+        if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+          sink.add(data);
+          return;
+        }
+
+        throw SocketException("");
+      } on SocketException catch (_) {
+        sink.add(ConnectivityResult.none);
       }
     },
-    handleDone: (EventSink<ConnectivityResult> sink) {
-      _timer?.cancel();
-      sink.close();
-    },
+    handleDone: (EventSink<ConnectivityResult> sink) => sink.close(),
   );
 }

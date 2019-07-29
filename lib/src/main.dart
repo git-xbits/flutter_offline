@@ -4,7 +4,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_offline/src/utils.dart';
 
-const kOfflineDebounceDuration = const Duration(seconds: 3);
+const kOfflineDebounceDuration = Duration(seconds: 3);
 const kHostToCheck = 'google.com';
 
 typedef Widget ConnectivityBuilder(
@@ -26,8 +26,8 @@ class OfflineBuilder extends StatefulWidget {
       connectivityBuilder: connectivityBuilder,
       connectivityService: Connectivity(),
       debounceDuration: debounceDuration,
-      hostToCheck : hostToCheck,
-      checkHost : checkHost,
+      hostToCheck: hostToCheck,
+      checkHost: checkHost,
       builder: builder,
       child: child,
       errorBuilder: errorBuilder,
@@ -49,7 +49,7 @@ class OfflineBuilder extends StatefulWidget {
             connectivityBuilder != null, 'connectivityBuilder cannot be null'),
         assert(debounceDuration != null, 'debounceDuration cannot be null'),
         assert(hostToCheck != null, 'hostToCheck cannot be null'),
-        assert(checkHost != null, 'checkHost cannot be true or false'),
+        assert(checkHost != null, 'checkHost can only be true or false'),
         assert(
             connectivityService != null, 'connectivityService cannot be null'),
         assert(
@@ -64,10 +64,10 @@ class OfflineBuilder extends StatefulWidget {
   /// Debounce duration from epileptic network situations
   final Duration debounceDuration;
 
-  /// Hostname to test internet connection 
+  /// Hostname to test internet connection
   final String hostToCheck;
 
-  /// hostToCheck to test internet connection 
+  /// Decide if to use the hostname option
   final bool checkHost;
 
   /// Used for building the Offline and/or Online UI
@@ -102,10 +102,14 @@ class OfflineBuilderState extends State<OfflineBuilder> {
         );
       },
     );
-    _connectivityStream = widget.checkHost ? _connectivityStream.transform(
-       checkIfHostIsAvailble(widget.hostToCheck),
-    ) : _connectivityStream;
-     _connectivityStream = _connectivityStream.transform(
+
+    if (widget.checkHost) {
+      _connectivityStream = _connectivityStream.transform(
+        checkIfHostIsAvailble(widget.hostToCheck),
+      );
+    }
+
+    _connectivityStream = _connectivityStream.transform(
       debounce(widget.debounceDuration),
     );
   }
